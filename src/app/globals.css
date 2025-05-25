@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary: #ff4b2b;
+  --primary-dark: #e63e1d;
+  --secondary: #1f2937;
+  --secondary-dark: #111827;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Import dark mode styles */
+@import url("./styles/darkMode.css");

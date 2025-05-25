@@ -1,0 +1,419 @@
+/* Dark mode base styles */
+.dark {
+  background-color: #111827;
+  color: #ffffff;
+}
+
+/* Dark mode card styles */
+.dark .card {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+/* Dark mode text styles */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #ffffff;
+}
+
+.dark p,
+.dark span,
+.dark div {
+  color: #e5e7eb;
+}
+
+/* Dark mode form elements */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #ffffff;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #ff4b2b;
+  box-shadow: 0 0 0 2px rgba(255, 75, 43, 0.2);
+}
+
+/* Dark mode button styles */
+.dark .btn-primary {
+  background-color: #ff4b2b;
+  color: #ffffff !important;
+}
+
+.dark .btn-primary:hover {
+  background-color: rgba(255, 75, 43, 0.9);
+}
+
+.dark .btn-secondary {
+  background-color: #374151;
+  color: #ffffff !important;
+}
+
+.dark .btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+/* Success button styles */
+.dark .bg-green-500,
+.dark .bg-green-600 {
+  background-color: #059669 !important;
+  color: white !important;
+}
+
+.dark .hover\:bg-green-600:hover {
+  background-color: #047857 !important;
+}
+
+/* Dark mode table styles */
+.dark table {
+  border-color: #374151;
+}
+
+.dark th {
+  background-color: #1f2937;
+  color: #ffffff;
+}
+
+.dark td {
+  border-color: #374151;
+  color: #e5e7eb;
+}
+
+/* Dark mode navigation */
+.dark nav {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+/* Dark mode list styles */
+.dark ul,
+.dark ol {
+  color: #e5e7eb;
+}
+
+/* Dark mode link styles */
+.dark a {
+  color: #ff4b2b;
+}
+
+.dark a:hover {
+  color: rgba(255, 75, 43, 0.8);
+}
+
+/* Dark mode modal styles */
+.dark .modal {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+/* Dark mode badge styles */
+.dark .badge {
+  background-color: #374151;
+  color: #ffffff;
+}
+
+/* Dark mode alert styles */
+.dark .alert-success {
+  background-color: #064e3b;
+  color: #d1fae5;
+  border-color: #065f46;
+}
+
+.dark .alert-error {
+  background-color: #7f1d1d;
+  color: #fee2e2;
+  border-color: #991b1b;
+}
+
+.dark .alert-warning {
+  background-color: #78350f;
+  color: #fef3c7;
+  border-color: #92400e;
+}
+
+.dark .alert-info {
+  background-color: #1e3a8a;
+  color: #dbeafe;
+  border-color: #1e40af;
+}
+
+/* Dark mode section styles */
+.dark section {
+  background-color: #111827;
+}
+
+/* Dark mode container styles */
+.dark .container {
+  background-color: #111827;
+}
+
+/* Dark mode background utilities */
+.dark .bg-white {
+  background-color: #1f2937;
+}
+
+.dark .bg-gray-50 {
+  background-color: #1f2937;
+}
+
+.dark .bg-gray-100 {
+  background-color: #374151;
+}
+
+/* Dark mode text utilities */
+.dark .text-gray-600 {
+  color: #d1d5db;
+}
+
+.dark .text-gray-700 {
+  color: #e5e7eb;
+}
+
+.dark .text-gray-800 {
+  color: #f3f4f6;
+}
+
+.dark .text-gray-900 {
+  color: #ffffff;
+}
+
+/* Dark mode border utilities */
+.dark .border-gray-200 {
+  border-color: #4b5563;
+}
+
+.dark .border-gray-300 {
+  border-color: #6b7280;
+}
+
+/* Dark mode hover states */
+.dark .hover\:bg-gray-50:hover {
+  background-color: #4b5563;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #6b7280;
+}
+
+.dark .hover\:text-gray-700:hover {
+  color: #e5e7eb;
+}
+
+.dark .hover\:text-gray-900:hover {
+  color: #ffffff;
+}
+
+/* Dark mode tab styles */
+.dark .border-b-2 {
+  border-color: #4b5563;
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af;
+}
+
+.dark .hover\:text-gray-700:hover {
+  color: #d1d5db;
+}
+
+.dark .hover\:border-gray-300:hover {
+  border-color: #6b7280;
+}
+
+/* Dark mode rounded elements */
+.dark .rounded-lg {
+  background-color: #1f2937;
+}
+
+.dark .rounded-md {
+  background-color: #1f2937;
+}
+
+.dark .rounded-full {
+  background-color: #1f2937;
+}
+
+/* Dark mode progress bars */
+.dark .bg-gray-200 {
+  background-color: #4b5563;
+}
+
+/* Dark mode page background */
+.dark .min-h-screen {
+  background-color: #111827;
+}
+
+/* Dark mode card backgrounds */
+.dark .bg-white.rounded-lg {
+  background-color: #1f2937;
+}
+
+.dark .bg-white.rounded-md {
+  background-color: #1f2937;
+}
+
+.dark .bg-white.rounded-full {
+  background-color: #1f2937;
+}
+
+/* Progress bar styles */
+.dark [class*="bg-primary"] {
+  background-color: #ff4b2b !important;
+}
+
+/* Section differentiation */
+.dark header {
+  background-color: #1f2937;
+  border-bottom: 1px solid #374151;
+}
+
+.dark footer {
+  background-color: #1f2937;
+  border-top: 1px solid #374151;
+}
+
+.dark main {
+  background-color: #111827;
+}
+
+/* Tab navigation styles */
+.dark .border-b {
+  border-bottom: 1px solid #374151;
+}
+
+.dark nav.-mb-px {
+  background-color: #1f2937;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.dark nav.-mb-px button {
+  color: #d1d5db;
+}
+
+.dark nav.-mb-px button:hover {
+  color: #ffffff;
+}
+
+/* Active tab styles */
+.dark nav.-mb-px button[class*="border-primary"] {
+  color: #ff4b2b !important;
+  border-bottom: 2px solid #ff4b2b !important;
+}
+
+/* Button text colors */
+.dark button {
+  color: #ffffff !important;
+}
+
+.dark button.text-gray-500 {
+  color: #d1d5db !important;
+}
+
+.dark button.text-gray-700 {
+  color: #e5e7eb !important;
+}
+
+.dark button.text-gray-900 {
+  color: #ffffff !important;
+}
+
+/* Success button specific styles */
+.dark button.bg-green-500,
+.dark button.bg-green-600 {
+  background-color: #059669 !important;
+  color: white !important;
+}
+
+.dark button.hover\:bg-green-600:hover {
+  background-color: #047857 !important;
+}
+
+/* Quick Actions and Custom Workout button styles */
+.dark .bg-primary {
+  background-color: #ff4b2b !important;
+  color: #ffffff !important;
+}
+
+.dark .hover\:bg-primary-dark:hover {
+  background-color: rgba(255, 75, 43, 0.9) !important;
+}
+
+/* Card hover states */
+.dark .hover\:shadow-lg:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3),
+    0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Input focus states */
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #ff4b2b !important;
+  box-shadow: 0 0 0 2px rgba(255, 75, 43, 0.2) !important;
+}
+
+/* Link hover states */
+.dark a:hover {
+  color: rgba(255, 75, 43, 0.8) !important;
+}
+
+/* Calendar styles */
+.dark .fc {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+.dark .fc-button {
+  background-color: #374151 !important;
+  color: #ffffff !important;
+  border-color: #4b5563 !important;
+}
+
+.dark .fc-button:hover {
+  background-color: #4b5563 !important;
+}
+
+.dark .fc-button-active {
+  background-color: #ff4b2b !important;
+  border-color: #ff4b2b !important;
+}
+
+.dark .fc-daygrid-day {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .fc-daygrid-day-number {
+  color: #ffffff !important;
+}
+
+.dark .fc-event {
+  background-color: #ff4b2b !important;
+  border-color: #ff4b2b !important;
+  color: #ffffff !important;
+}
+
+/* Workout reminder styles */
+.dark .fixed.bottom-4.right-4 {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .fixed.bottom-4.right-4 h3 {
+  color: #ffffff !important;
+}
+
+.dark .fixed.bottom-4.right-4 p {
+  color: #d1d5db !important;
+}
