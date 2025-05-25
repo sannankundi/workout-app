@@ -10,9 +10,10 @@ import ClientWrapper from "./components/ClientWrapper";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FitTrack - Your Personal Fitness Journey",
+  title: process.env.NEXT_PUBLIC_APP_NAME || "Workout App",
   description:
-    "Track your workouts, monitor your progress, and achieve your fitness goals with FitTrack. Create custom workouts, track your exercises, and stay motivated on your fitness journey.",
+    process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
+    "Track your workouts and progress",
   keywords: [
     "fitness",
     "workout",
@@ -62,11 +63,11 @@ export default function RootLayout({
         <AuthProvider>
           <PreferencesProvider>
             <ClientWrapper>
-            <div className="min-h-screen flex flex-col">
-              <Navbar />
-              <main className="flex-grow">{children}</main>
-              <Footer />
-            </div>
+              <div className="min-h-screen flex flex-col">
+                <Navbar />
+                <main className="flex-grow">{children}</main>
+                <Footer />
+              </div>
             </ClientWrapper>
           </PreferencesProvider>
         </AuthProvider>

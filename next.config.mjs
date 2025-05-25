@@ -11,16 +11,17 @@ const nextConfig = {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "julsixczdtoskgmpaewz.supabase.co",
+      },
     ],
   },
   env: {
-    APP_NAME: "FitTrack",
-    APP_DESCRIPTION: "Your Personal Fitness Journey Companion",
-  },
-  experimental: {
-    serverActions: {
-      allowedOrigins: ["localhost:3000", "fittrackworkout.web.app"],
-    },
+    APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || "FitTrack",
+    APP_DESCRIPTION:
+      process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
+      "Your Personal Fitness Journey Companion",
   },
   webpack: (config, { isServer }) => {
     // Optimize module loading
@@ -48,15 +49,6 @@ const nextConfig = {
             reuseExistingChunk: true,
           },
         },
-      },
-    };
-
-    // Add resolve fallbacks for Firebase
-    config.resolve = {
-      ...config.resolve,
-      fallback: {
-        ...config.resolve.fallback,
-        "firebase/auth": "firebase/auth",
       },
     };
 
