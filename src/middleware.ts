@@ -1,56 +1,63 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function middleware(req: NextRequest) {
+export async function middleware(request: NextRequest) {
+  // Only protect API routes
+  if (!request.nextUrl.pathname.startsWith("/api/")) {
+    return NextResponse.next();
+  }
+
   try {
-    const res = NextResponse.next();
-    const supabase = createMiddlewareClient({
-      req,
-      res,
-      options: {
-        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-        supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    // Get the token from the Authorization header
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { error: "Unauthorized - No token provided" },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.split("Bearer ")[1];
+
+    // Verify the token using Firebase Auth REST API
+    const response = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/projects/${process.env.FIREBASE_PROJECT_ID}/accounts:lookup?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ idToken: token }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Invalid token");
+    }
+
+    const data = await response.json();
+    const userId = data.users[0].localId;
+
+    // Add the user ID to the request headers
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-user-id", userId);
+
+    // Return the response with the modified headers
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
       },
     });
-
-    // Refresh session if expired - required for Server Components
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.getSession();
-
-    if (error) {
-      console.error("Middleware auth error:", error.message);
-      // Continue even if there's an auth error
-      return res;
-    }
-
-    // Optional: Add user to request headers if needed
-    if (session?.user) {
-      res.headers.set("x-user-id", session.user.id);
-    }
-
-    return res;
   } catch (error) {
-    console.error("Middleware error:", error);
-    // Return a response even if there's an error
-    return NextResponse.next();
+    console.error("Auth error:", error);
+    return NextResponse.json(
+      { error: "Unauthorized - Invalid token" },
+      { status: 401 }
+    );
   }
 }
 
-// Update the matcher to be less restrictive
+// Configure which routes to run middleware on
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     * - public files
-     * - api routes
-     */
-    "/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  matcher: "/api/:path*",
 };
