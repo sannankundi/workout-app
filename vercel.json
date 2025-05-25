@@ -3,7 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "functions": {
-    "api/**": {
+    "app/api/**": {
       "memory": 1024,
       "maxDuration": 10
     }
