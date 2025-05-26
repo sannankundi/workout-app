@@ -152,7 +152,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
       const updatedCompletedExercises = [
         ...completedExercises,
         currentExerciseData,
-      ];
+      ].filter((exercise): exercise is Exercise => exercise !== undefined);
       setCompletedExercises(updatedCompletedExercises);
 
       if (currentExercise < workout.exercises.length - 1) {
