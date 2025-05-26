@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "./contexts/AuthContext";
 import { PreferencesProvider } from "./contexts/PreferencesContext";
@@ -8,6 +9,12 @@ import Footer from "./components/Footer";
 import ClientWrapper from "./components/ClientWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
+
+declare global {
+  interface Window {
+    onRecaptchaLoad: () => void;
+  }
+}
 
 export const metadata: Metadata = {
   title: "FitTrack - Your Personal Fitness Journey",
@@ -55,6 +62,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.className}>
+      <head>
+        <Script
+          src={`https://www.google.com/recaptcha/api.js?render=explicit`}
+          strategy="beforeInteractive"
+        />
+      </head>
       <body
         className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-200"
         suppressHydrationWarning

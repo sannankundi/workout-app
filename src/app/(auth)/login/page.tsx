@@ -1,11 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { motion } from "framer-motion";
 import { FaGoogle } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  renderRecaptcha,
+  resetRecaptcha,
+  getRecaptchaResponse,
+  clearRecaptchaWidget,
+} from "../../utils/recaptcha";
 
 const Login = () => {
   const router = useRouter();
@@ -14,6 +20,32 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState("");
+  const recaptchaRef = useRef<number | null>(null);
+  const hasRendered = useRef(false);
+
+  useEffect(() => {
+    if (hasRendered.current) return;
+    hasRendered.current = true;
+
+    if (typeof window === "undefined") return;
+
+    renderRecaptcha(
+      "recaptcha-container",
+      (token) => setRecaptchaToken(token),
+      () => setRecaptchaToken("")
+    )
+      .then((id) => {
+        recaptchaRef.current = id;
+      })
+      .catch((error) => {
+        console.error("Error rendering reCAPTCHA:", error);
+      });
+
+    return () => {
+      clearRecaptchaWidget();
+    };
+  }, []);
 
   const handleSuccessfulLogin = () => {
     const redirectUrl = sessionStorage.getItem("redirectUrl") || "/dashboard";
@@ -25,6 +57,12 @@ const Login = () => {
     e.preventDefault();
     try {
       setError("");
+
+      if (!recaptchaToken) {
+        setError("Please complete the reCAPTCHA verification");
+        return;
+      }
+
       setLoading(true);
       await login(email, password);
       handleSuccessfulLogin();
@@ -34,6 +72,11 @@ const Login = () => {
       } else {
         setError("Failed to sign in");
       }
+      // Reset reCAPTCHA on error
+      if (recaptchaRef.current !== null) {
+        resetRecaptcha(recaptchaRef.current);
+        setRecaptchaToken("");
+      }
     }
     setLoading(false);
   }
@@ -41,6 +84,12 @@ const Login = () => {
   async function handleGoogleSignIn() {
     try {
       setError("");
+
+      if (!recaptchaToken) {
+        setError("Please complete the reCAPTCHA verification");
+        return;
+      }
+
       setLoading(true);
       await googleSignIn();
       handleSuccessfulLogin();
@@ -49,6 +98,11 @@ const Login = () => {
         setError("Failed to sign in with Google: " + error.message);
       } else {
         setError("Failed to sign in with Google");
+      }
+      // Reset reCAPTCHA on error
+      if (recaptchaRef.current !== null) {
+        resetRecaptcha(recaptchaRef.current);
+        setRecaptchaToken("");
       }
     }
     setLoading(false);
@@ -110,10 +164,14 @@ const Login = () => {
             </div>
           </div>
 
+          <div className="flex justify-center">
+            <div id="recaptcha-container" className="mb-4" />
+          </div>
+
           <div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !recaptchaToken}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Signing in..." : "Sign in"}
@@ -136,7 +194,7 @@ const Login = () => {
           <div className="mt-6">
             <button
               onClick={handleGoogleSignIn}
-              disabled={loading}
+              disabled={loading || !recaptchaToken}
               className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FaGoogle className="h-5 w-5 text-red-500 mr-2" />

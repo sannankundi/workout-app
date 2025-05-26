@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../contexts/AuthContext";
 import { v4 as uuidv4 } from "uuid";
 import ProtectedRoute from "../../components/ProtectedRoute";
+import { FaSearch, FaImage, FaTimes, FaInfoCircle } from "react-icons/fa";
 
 interface Exercise {
   id: string;
@@ -17,6 +18,17 @@ interface Exercise {
   restTime: number;
   type: "reps" | "time";
   notes: string;
+}
+
+interface PixabayImage {
+  id: number;
+  webformatURL: string;
+  largeImageURL: string;
+  user: string;
+  userImageURL: string;
+  tags: string;
+  likes: number;
+  downloads: number;
 }
 
 // Predefined exercises
@@ -247,6 +259,8 @@ export default function NewWorkout() {
   const [searchTerm, setSearchTerm] = useState("");
   const [showExerciseList, setShowExerciseList] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [showImageInfo, setShowImageInfo] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     console.log("Auth state:", { currentUser, authLoading });
@@ -299,26 +313,185 @@ export default function NewWorkout() {
     setExercises(exercises.filter((exercise) => exercise.id !== id));
   };
 
+  const validateExercise = (exercise: Exercise): string | null => {
+    if (!exercise.name.trim()) {
+      return "Exercise name is required";
+    }
+    if (exercise.sets < 1) {
+      return "Sets must be at least 1";
+    }
+    if (exercise.type === "reps" && (!exercise.reps || exercise.reps < 1)) {
+      return "Reps must be at least 1 for reps-based exercises";
+    }
+    if (
+      exercise.type === "time" &&
+      (!exercise.duration || exercise.duration < 1)
+    ) {
+      return "Duration must be at least 1 second for time-based exercises";
+    }
+    if (exercise.restTime < 0) {
+      return "Rest time cannot be negative";
+    }
+    return null;
+  };
+
+  const searchPixabayImage = async (
+    searchTerms: string[]
+  ): Promise<string | null> => {
+    console.log("Starting image search with terms:", searchTerms);
+
+    for (const term of searchTerms) {
+      if (!term.trim()) {
+        console.log("Skipping empty search term");
+        continue;
+      }
+
+      try {
+        const searchQuery = `${term} fitness workout`.trim();
+        console.log("Searching with query:", searchQuery);
+
+        // Use our API route instead of calling Pixabay directly
+        const apiResponse = await fetch(
+          `/api/pixabay?q=${encodeURIComponent(searchQuery)}`
+        );
+
+        if (!apiResponse.ok) {
+          const errorData = await apiResponse.json().catch(() => ({}));
+          console.error("API error:", {
+            status: apiResponse.status,
+            statusText: apiResponse.statusText,
+            error: errorData.error || "Unknown error",
+            term: term,
+          });
+          continue;
+        }
+
+        const data = await apiResponse.json();
+
+        if (data.error) {
+          console.error("API returned error:", data.error);
+          continue;
+        }
+
+        console.log("API response:", {
+          totalHits: data.totalHits,
+          hasHits: data.hits && data.hits.length > 0,
+          term: term,
+        });
+
+        if (data.hits && data.hits.length > 0 && data.hits[0].webformatURL) {
+          const imageUrl = data.hits[0].webformatURL;
+          console.log("Found image URL:", imageUrl);
+          return imageUrl;
+        } else {
+          console.log("No images found for term:", term);
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error("Error searching for images:", {
+            error: error.message,
+            term: term,
+            stack: error.stack,
+          });
+        } else {
+          console.error("Unknown error searching for images:", error);
+        }
+        continue;
+      }
+    }
+
+    console.log("No images found for any search terms");
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) return;
+    if (!currentUser) {
+      console.error("No current user found");
+      return;
+    }
+
+    // Validate exercises
+    const exerciseErrors = exercises
+      .map((exercise) => {
+        const error = validateExercise(exercise);
+        return error
+          ? `${exercise.name || "Unnamed exercise"}: ${error}`
+          : null;
+      })
+      .filter(Boolean);
+
+    if (exerciseErrors.length > 0) {
+      alert(
+        "Please fix the following exercise errors:\n" +
+          exerciseErrors.join("\n")
+      );
+      return;
+    }
 
     setLoading(true);
     try {
+      // Search for an image based on title and description
+      const searchTerms = [
+        title, // Try title first
+        ...description
+          .split(/\s+/)
+          .filter((word) => word.length > 3) // Only use words longer than 3 characters
+          .filter((word) => /^[a-zA-Z]+$/.test(word)) // Only use words with letters
+          .slice(0, 5), // Limit to first 5 words
+      ].filter(Boolean); // Remove any empty terms
+
+      console.log("Preparing to search for images with terms:", searchTerms);
+
+      let imageUrl = null;
+      try {
+        imageUrl = await searchPixabayImage(searchTerms);
+        console.log(
+          "Image search result:",
+          imageUrl ? "Found image" : "No image found"
+        );
+      } catch (error) {
+        console.error("Error during image search:", error);
+        // Continue with workout creation even if image search fails
+      }
+
       const workoutData = {
         title,
         description,
         duration,
         difficulty,
-        exercises,
+        imageUrl,
+        exercises: exercises.map((exercise) => {
+          const exerciseData: any = {
+            name: exercise.name.trim(),
+            sets: exercise.sets,
+            restTime: exercise.restTime,
+            type: exercise.type,
+            notes: exercise.notes.trim(),
+          };
+
+          if (exercise.type === "reps" && exercise.reps) {
+            exerciseData.reps = exercise.reps;
+          } else if (exercise.type === "time" && exercise.duration) {
+            exerciseData.duration = exercise.duration;
+          }
+
+          return exerciseData;
+        }),
         userId: currentUser.uid,
         createdAt: new Date().toISOString(),
       };
+
+      console.log("Creating workout with data:", {
+        ...workoutData,
+        exercises: workoutData.exercises.length,
+      });
 
       const docRef = await addDoc(
         collection(db, "workoutTemplates"),
         workoutData
       );
+      console.log("Workout created successfully with ID:", docRef.id);
       router.push(`/workouts/${docRef.id}`);
     } catch (error) {
       console.error("Error creating workout:", error);
@@ -336,9 +509,31 @@ export default function NewWorkout() {
           {isClient ? (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Title
-                </label>
+                <div className="flex items-center space-x-2 mb-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Title
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowImageInfo(!showImageInfo)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <FaInfoCircle />
+                  </button>
+                </div>
+                {showImageInfo && (
+                  <div className="mb-2 p-3 bg-gray-100 border border-gray-200 text-gray-800 text-sm rounded-lg shadow-sm">
+                    <div className="flex items-start">
+                      <FaInfoCircle className="mt-0.5 mr-2 text-gray-500 flex-shrink-0" />
+                      <p>
+                        Your workout title will help us find a matching image
+                        for your workout. Using descriptive words like
+                        "strength", "cardio", or "yoga" will help find a better
+                        image.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <input
                   type="text"
                   value={title}

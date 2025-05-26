@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../contexts/AuthContext";
@@ -9,6 +9,12 @@ import { FaGoogle } from "react-icons/fa";
 import { doc, setDoc } from "firebase/firestore";
 import { db, auth } from "../../firebase/config";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  renderRecaptcha,
+  resetRecaptcha,
+  getRecaptchaResponse,
+  clearRecaptchaWidget,
+} from "../../utils/recaptcha";
 
 // Define TypeScript interfaces
 interface User {
@@ -50,19 +56,50 @@ const Signup = () => {
   const [fullName, setFullName] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [recaptchaToken, setRecaptchaToken] = useState("");
+  const recaptchaRef = useRef<number | null>(null);
+  const hasRendered = useRef(false);
   const router = useRouter();
   const { googleSignIn } = useAuth() as AuthContextType;
+
+  useEffect(() => {
+    if (hasRendered.current) return;
+    hasRendered.current = true;
+
+    if (typeof window === "undefined") return;
+
+    renderRecaptcha(
+      "recaptcha-container",
+      (token) => setRecaptchaToken(token),
+      () => setRecaptchaToken("")
+    )
+      .then((id) => {
+        recaptchaRef.current = id;
+      })
+      .catch((error) => {
+        console.error("Error rendering reCAPTCHA:", error);
+      });
+
+    return () => {
+      clearRecaptchaWidget();
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
-      setLoading(false);
       return;
     }
+
+    if (!recaptchaToken) {
+      setError("Please complete the reCAPTCHA verification");
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const { user } = await createUserWithEmailAndPassword(
@@ -95,6 +132,11 @@ const Signup = () => {
     } catch (error: unknown) {
       console.error("Error during signup:", error);
       setError("Failed to create an account. Please try again.");
+      // Reset reCAPTCHA on error
+      if (recaptchaRef.current !== null) {
+        resetRecaptcha(recaptchaRef.current);
+        setRecaptchaToken("");
+      }
     } finally {
       setLoading(false);
     }
@@ -103,6 +145,12 @@ const Signup = () => {
   const handleGoogleSignIn = async () => {
     try {
       setError("");
+
+      if (!recaptchaToken) {
+        setError("Please complete the reCAPTCHA verification");
+        return;
+      }
+
       setLoading(true);
       const { user } = await googleSignIn();
       await setDoc(doc(db, "users", user.uid), {
@@ -128,6 +176,11 @@ const Signup = () => {
       router.push("/dashboard");
     } catch (error: unknown) {
       setError("Failed to sign up with Google: " + (error as Error).message);
+      // Reset reCAPTCHA on error
+      if (recaptchaRef.current !== null) {
+        resetRecaptcha(recaptchaRef.current);
+        setRecaptchaToken("");
+      }
     } finally {
       setLoading(false);
     }
@@ -220,11 +273,15 @@ const Signup = () => {
             </div>
           </div>
 
+          <div className="flex justify-center">
+            <div id="recaptcha-container" className="mb-4" />
+          </div>
+
           <div>
             <button
               type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              disabled={loading || !recaptchaToken}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Sign up
             </button>
