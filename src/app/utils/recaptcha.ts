@@ -34,7 +34,7 @@ const waitForRecaptcha = (): Promise<void> => {
       return;
     }
 
-    if (typeof window.grecaptcha !== "undefined" && window.grecaptcha.render) {
+    if (typeof window.grecaptcha !== "undefined" && typeof window.grecaptcha.render === "function") {
       resolve();
       return;
     }
