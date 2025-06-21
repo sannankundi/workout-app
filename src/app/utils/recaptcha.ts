@@ -1,9 +1,12 @@
 // Get the site key from environment variables
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
-if (!RECAPTCHA_SITE_KEY) {
-  throw new Error(
-    "NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not defined in environment variables"
+// Check if reCAPTCHA is properly configured
+const isRecaptchaConfigured = !!RECAPTCHA_SITE_KEY;
+
+if (!isRecaptchaConfigured) {
+  console.warn(
+    "NEXT_PUBLIC_RECAPTCHA_SITE_KEY is not defined. reCAPTCHA will be disabled."
   );
 }
 
@@ -34,7 +37,16 @@ const waitForRecaptcha = (): Promise<void> => {
       return;
     }
 
-    if (typeof window.grecaptcha !== "undefined" && typeof window.grecaptcha.render === "function") {
+    if (
+      typeof window.grecaptcha !== "undefined" &&
+      typeof window.grecaptcha.render === "function"
+    ) {
+      resolve();
+      return;
+    }
+
+    // If reCAPTCHA is not configured, resolve immediately
+    if (!isRecaptchaConfigured) {
       resolve();
       return;
     }
@@ -55,6 +67,12 @@ export const renderRecaptcha = async (
   onVerify: (token: string) => void,
   onExpired: () => void
 ): Promise<number> => {
+  // If reCAPTCHA is not configured, return a dummy widget ID
+  if (!isRecaptchaConfigured) {
+    console.warn("reCAPTCHA is not configured. Skipping render.");
+    return -1;
+  }
+
   // Wait for reCAPTCHA to be ready
   await waitForRecaptcha();
 
@@ -70,7 +88,7 @@ export const renderRecaptcha = async (
 
   // Only render if there isn't already a widget
   widgetId = window.grecaptcha.render(elementId, {
-    sitekey: RECAPTCHA_SITE_KEY,
+    sitekey: RECAPTCHA_SITE_KEY!,
     callback: onVerify,
     "expired-callback": onExpired,
   });
@@ -79,12 +97,15 @@ export const renderRecaptcha = async (
 };
 
 export const resetRecaptcha = (widgetId: number) => {
-  if (widgetId !== null) {
+  if (widgetId !== null && widgetId !== -1 && isRecaptchaConfigured) {
     window.grecaptcha?.reset(widgetId);
   }
 };
 
 export const getRecaptchaResponse = (widgetId: number): string => {
+  if (!isRecaptchaConfigured) {
+    return "dummy-token"; // Return a dummy token when reCAPTCHA is not configured
+  }
   return window.grecaptcha?.getResponse(widgetId) || "";
 };
 
@@ -92,3 +113,6 @@ export const getRecaptchaResponse = (widgetId: number): string => {
 export const clearRecaptchaWidget = () => {
   widgetId = null;
 };
+
+// Export a function to check if reCAPTCHA is configured
+export const isRecaptchaEnabled = () => isRecaptchaConfigured;

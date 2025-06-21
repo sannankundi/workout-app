@@ -14,6 +14,7 @@ import {
   resetRecaptcha,
   getRecaptchaResponse,
   clearRecaptchaWidget,
+  isRecaptchaEnabled,
 } from "../../utils/recaptcha";
 import { initializeUserData } from "../../utils/initializeData";
 
@@ -69,17 +70,23 @@ const Signup = () => {
 
     if (typeof window === "undefined") return;
 
-    renderRecaptcha(
-      "recaptcha-container",
-      (token) => setRecaptchaToken(token),
-      () => setRecaptchaToken("")
-    )
-      .then((id) => {
-        recaptchaRef.current = id;
-      })
-      .catch((error) => {
-        console.error("Error rendering reCAPTCHA:", error);
-      });
+    // Only render reCAPTCHA if it's configured
+    if (isRecaptchaEnabled()) {
+      renderRecaptcha(
+        "recaptcha-container",
+        (token) => setRecaptchaToken(token),
+        () => setRecaptchaToken("")
+      )
+        .then((id) => {
+          recaptchaRef.current = id;
+        })
+        .catch((error) => {
+          console.error("Error rendering reCAPTCHA:", error);
+        });
+    } else {
+      // If reCAPTCHA is not configured, set a dummy token
+      setRecaptchaToken("dummy-token");
+    }
 
     return () => {
       clearRecaptchaWidget();
@@ -95,7 +102,7 @@ const Signup = () => {
       return;
     }
 
-    if (!recaptchaToken) {
+    if (isRecaptchaEnabled() && !recaptchaToken) {
       setError("Please complete the reCAPTCHA verification");
       return;
     }
@@ -164,7 +171,7 @@ const Signup = () => {
       }
 
       // Reset reCAPTCHA on error
-      if (recaptchaRef.current !== null) {
+      if (recaptchaRef.current !== null && recaptchaRef.current !== -1) {
         resetRecaptcha(recaptchaRef.current);
         setRecaptchaToken("");
       }
@@ -177,7 +184,7 @@ const Signup = () => {
     try {
       setError("");
 
-      if (!recaptchaToken) {
+      if (isRecaptchaEnabled() && !recaptchaToken) {
         setError("Please complete the reCAPTCHA verification");
         return;
       }
@@ -208,7 +215,7 @@ const Signup = () => {
     } catch (error: unknown) {
       setError("Failed to sign up with Google: " + (error as Error).message);
       // Reset reCAPTCHA on error
-      if (recaptchaRef.current !== null) {
+      if (recaptchaRef.current !== null && recaptchaRef.current !== -1) {
         resetRecaptcha(recaptchaRef.current);
         setRecaptchaToken("");
       }
@@ -312,7 +319,9 @@ const Signup = () => {
           </div>
 
           <div className="flex justify-center">
-            <div id="recaptcha-container" className="mb-4" />
+            {isRecaptchaEnabled() && (
+              <div id="recaptcha-container" className="mb-4" />
+            )}
           </div>
 
           <div>

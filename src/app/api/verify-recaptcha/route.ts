@@ -1,11 +1,26 @@
 import { NextResponse } from "next/server";
 
 const RECAPTCHA_API_KEY = process.env.RECAPTCHA_API_KEY;
-const PROJECT_ID = "fittrackworkout";
+const PROJECT_ID = process.env.RECAPTCHA_PROJECT_ID || "fittrackworkout";
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+// Check if reCAPTCHA is properly configured
+const isRecaptchaConfigured = !!RECAPTCHA_API_KEY && !!RECAPTCHA_SITE_KEY;
 
 export async function POST(request: Request) {
   try {
     const { token, action } = await request.json();
+
+    // If reCAPTCHA is not configured, return success for dummy tokens
+    if (!isRecaptchaConfigured) {
+      if (token === "dummy-token") {
+        return NextResponse.json({ success: true, score: 1.0 });
+      }
+      return NextResponse.json(
+        { success: false, error: "reCAPTCHA not configured" },
+        { status: 400 }
+      );
+    }
 
     if (!token) {
       return NextResponse.json(
@@ -25,7 +40,7 @@ export async function POST(request: Request) {
           event: {
             token,
             expectedAction: action,
-            siteKey: "6LelKkkrAAAAAPaUeB0iqkvrVFjZVgFxksxYCGCh",
+            siteKey: RECAPTCHA_SITE_KEY,
           },
         }),
       }
