@@ -99,6 +99,11 @@ interface Achievement {
   unlockedAt?: string;
 }
 
+// Firebase Auth Error type
+interface FirebaseAuthError extends Error {
+  code?: string;
+}
+
 const Profile = () => {
   const { currentUser } = useAuth() as AuthContextType;
   const { preferences, updatePreferences } =
@@ -631,16 +636,17 @@ const Profile = () => {
       router.push("/");
     } catch (error) {
       console.error("Error in delete process:", error);
-      if (error instanceof Error) {
-        if (error.code === "auth/requires-recent-login") {
-          setDeleteError(
-            "For security reasons, please log out and log back in before deleting your account."
-          );
-        } else {
-          setDeleteError(`Failed to delete account: ${error.message}`);
-        }
+      const authError = error as FirebaseAuthError;
+      if (authError.code === "auth/requires-recent-login") {
+        setDeleteError(
+          "For security reasons, please log out and log back in before deleting your account."
+        );
       } else {
-        setDeleteError("An unexpected error occurred. Please try again.");
+        setDeleteError(
+          `Failed to delete account: ${
+            authError.message || "An unexpected error occurred"
+          }`
+        );
       }
     } finally {
       setDeleteLoading(false);
