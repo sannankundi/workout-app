@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 
-const RECAPTCHA_API_KEY = process.env.RECAPTCHA_API_KEY;
-const PROJECT_ID = process.env.RECAPTCHA_PROJECT_ID || "fittrackworkout";
+const RECAPTCHA_SECRET_KEY = process.env.RECAPTCHA_SECRET_KEY;
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 // Check if reCAPTCHA is properly configured
-const isRecaptchaConfigured = !!RECAPTCHA_API_KEY && !!RECAPTCHA_SITE_KEY;
+const isRecaptchaConfigured = !!RECAPTCHA_SECRET_KEY && !!RECAPTCHA_SITE_KEY;
 
 export async function POST(request: Request) {
   try {
@@ -29,19 +28,17 @@ export async function POST(request: Request) {
       );
     }
 
+    // Use standard reCAPTCHA v2 verification
     const response = await fetch(
-      `https://recaptchaenterprise.googleapis.com/v1/projects/${PROJECT_ID}/assessments?key=${RECAPTCHA_API_KEY}`,
+      `https://www.google.com/recaptcha/api/siteverify`,
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify({
-          event: {
-            token,
-            expectedAction: action,
-            siteKey: RECAPTCHA_SITE_KEY,
-          },
+        body: new URLSearchParams({
+          secret: RECAPTCHA_SECRET_KEY,
+          response: token,
         }),
       }
     );
@@ -49,16 +46,16 @@ export async function POST(request: Request) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("reCAPTCHA assessment failed:", data);
+      console.error("reCAPTCHA verification failed:", data);
       return NextResponse.json(
-        { success: false, error: "Assessment failed" },
+        { success: false, error: "Verification failed" },
         { status: response.status }
       );
     }
 
-    // Check if the assessment was successful
-    const score = data.riskAnalysis?.score || 0;
-    const success = score >= 0.5; // You can adjust this threshold
+    // Check if the verification was successful
+    const success = data.success === true;
+    const score = success ? 1.0 : 0.0; // reCAPTCHA v2 doesn't provide scores, only success/failure
 
     return NextResponse.json({ success, score });
   } catch (error) {
