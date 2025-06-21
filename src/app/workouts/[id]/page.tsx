@@ -11,6 +11,7 @@ import { FaPlay, FaPause, FaCheck, FaArrowRight } from "react-icons/fa";
 import WorkoutCalendar from "../../components/WorkoutCalendar";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import { use } from "react";
+import { query, getDocs, collection, where, addDoc } from "firebase/firestore";
 
 interface Exercise {
   name: string;
@@ -65,6 +66,9 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
   const [workoutStreaks, setWorkoutStreaks] = useState<WorkoutLog[]>([]);
   const [currentSet, setCurrentSet] = useState<number>(1);
   const [isExerciseComplete, setIsExerciseComplete] = useState<boolean>(false);
+  const [alreadyCompletedToday, setAlreadyCompletedToday] =
+    useState<boolean>(false);
+  const [showReminder, setShowReminder] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchWorkout = async () => {
@@ -74,7 +78,15 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
           setLoading(false);
           return;
         }
-        const workoutDoc = await getDoc(doc(db, "workoutTemplates", id));
+
+        // Try to fetch from workoutTemplates first
+        let workoutDoc = await getDoc(doc(db, "workoutTemplates", id));
+
+        // If not found in workoutTemplates, try workouts collection
+        if (!workoutDoc.exists()) {
+          workoutDoc = await getDoc(doc(db, "workouts", id));
+        }
+
         if (workoutDoc.exists()) {
           const workoutData = workoutDoc.data() as WorkoutTemplate;
           setWorkout(workoutData);
@@ -82,6 +94,9 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
           if (workoutData.exercises[0]?.type === "time") {
             setTimeLeft(workoutData.exercises[0].duration || 0);
           }
+
+          // Check if already completed today
+          await checkTodayWorkout(workoutData.title);
         } else {
           setError("Workout not found");
           router.push("/workouts");
@@ -98,6 +113,33 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
   }, [id, router]);
 
   const currentExerciseData = workout?.exercises[currentExercise];
+
+  const checkTodayWorkout = async (workoutTitle: string) => {
+    if (!currentUser) return;
+
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const logsQuery = query(
+        collection(db, "workoutLogs"),
+        where("userId", "==", currentUser.uid),
+        where("workoutName", "==", workoutTitle),
+        where("completedAt", ">=", today.toISOString()),
+        where("completedAt", "<", tomorrow.toISOString())
+      );
+
+      const logsSnapshot = await getDocs(logsQuery);
+      if (!logsSnapshot.empty) {
+        setAlreadyCompletedToday(true);
+        setShowReminder(true);
+      }
+    } catch (error) {
+      console.error("Error checking today's workout:", error);
+    }
+  };
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -137,7 +179,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
     return () => clearInterval(timer);
   }, [isActive, isResting, currentExerciseData, currentSet]);
 
-  const handleExerciseComplete = () => {
+  const handleExerciseComplete = async () => {
     if (!workout) return;
 
     if (currentSet < (currentExerciseData?.sets || 0)) {
@@ -165,8 +207,21 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
         setIsResting(true);
         setTimeLeft(workout.exercises[currentExercise + 1]?.restTime || 0);
       } else {
+        // Workout completed - save to database if not already completed today
+        if (!alreadyCompletedToday && currentUser) {
+          try {
+            await addDoc(collection(db, "workoutLogs"), {
+              userId: currentUser.uid,
+              workoutName: workout.title,
+              completedAt: new Date().toISOString(),
+              duration: workout.duration,
+              exercises: updatedCompletedExercises,
+            });
+          } catch (error) {
+            console.error("Error saving workout completion:", error);
+          }
+        }
         setShowCompletion(true);
-        // Here you would typically save the workout completion to the database
       }
     }
   };
@@ -174,6 +229,52 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
   const toggleTimer = () => {
     setIsActive(!isActive);
   };
+
+  if (showCompletion) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+          <div className="text-6xl mb-4">🎉</div>
+          <h2 className="text-2xl font-bold mb-4">Workout Completed!</h2>
+          <p className="text-gray-600 mb-6">
+            {alreadyCompletedToday
+              ? "Great practice session! This was a repeat workout, so it wasn't recorded as a new completion."
+              : "Great job! You've completed the workout. Keep up the good work!"}
+          </p>
+          <Link href="/workouts" className="btn-primary block w-full">
+            Return to Workouts
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (showReminder) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+          <div className="text-4xl mb-4">💪</div>
+          <h2 className="text-xl font-bold mb-4">Already Completed Today!</h2>
+          <p className="text-gray-600 mb-6">
+            You've already completed this workout today. You can practice it
+            again, but it won't be recorded as another completion for tracking
+            purposes.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowReminder(false)}
+              className="flex-1 btn-primary"
+            >
+              Continue Practice
+            </button>
+            <Link href="/workouts" className="flex-1 btn-secondary">
+              Go Back
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -284,7 +385,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
                 <div className="flex justify-center space-x-4">
                   <button
                     onClick={toggleTimer}
-                    className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors flex items-center space-x-2"
+                    className="btn-primary flex items-center space-x-2"
                   >
                     {isActive ? (
                       <>
@@ -313,7 +414,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
                 <div className="text-4xl font-bold mb-4">{timeLeft}s</div>
                 <button
                   onClick={toggleTimer}
-                  className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition-colors flex items-center space-x-2 mx-auto"
+                  className="btn-primary flex items-center space-x-2 mx-auto"
                 >
                   {isActive ? (
                     <>

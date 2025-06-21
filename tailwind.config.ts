@@ -13,6 +13,8 @@ export default {
         primary: {
           DEFAULT: "#ff4b2b",
           dark: "#e63e1d",
+          light: "#ff6b4b",
+          lighter: "#ff8b6b",
         },
         secondary: {
           DEFAULT: "#1f2937",
@@ -20,6 +22,17 @@ export default {
         },
         background: "var(--background)",
         foreground: "var(--foreground)",
+      },
+      transitionProperty: {
+        height: "height",
+        spacing: "margin, padding",
+      },
+      transitionDuration: {
+        "2000": "2000ms",
+      },
+      scale: {
+        "101": "1.01",
+        "102": "1.02",
       },
     },
   },

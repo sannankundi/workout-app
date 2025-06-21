@@ -107,13 +107,13 @@ const WorkoutReminder = () => {
           <div className="mt-2 flex space-x-2">
             <Link
               href={`/workout/${todaysWorkout.workoutId}`}
-              className="text-sm text-primary hover:text-opacity-90"
+              className="btn-link"
             >
               Start Workout
             </Link>
             <button
               onClick={markWorkoutAsCompleted}
-              className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 flex items-center"
+              className="btn-link text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
             >
               <FaCheck className="mr-1" />
               Mark as Done

@@ -160,10 +160,7 @@ export default function WorkoutsPage() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Workouts
           </h1>
-          <Link
-            href="/workouts/new"
-            className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
-          >
+          <Link href="/workouts/new" className="btn-primary">
             Create Custom Workout
           </Link>
         </div>
@@ -248,7 +245,7 @@ export default function WorkoutsPage() {
                         <button
                           onClick={() => handleDelete(workout.id)}
                           disabled={deletingId === workout.id}
-                          className="w-full text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
+                          className="w-full btn-danger"
                         >
                           {deletingId === workout.id
                             ? "Deleting..."
@@ -272,16 +269,39 @@ export default function WorkoutsPage() {
               recentWorkouts.map((workout) => (
                 <div
                   key={workout.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow p-6"
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
                 >
-                  <h3 className="text-xl font-semibold mb-2">
-                    {workout.workoutName}
-                  </h3>
-                  <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-                    <span>
-                      {new Date(workout.completedAt).toLocaleDateString()}
-                    </span>
-                    <span>{workout.duration} minutes</span>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <Link
+                        href={`/workouts/${workout.workoutName
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                        className="text-xl font-semibold mb-2 text-primary hover:text-primary-dark transition-colors cursor-pointer"
+                      >
+                        {workout.workoutName}
+                      </Link>
+                      <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                        <span>
+                          {new Date(workout.completedAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
+                        </span>
+                        <span>{workout.duration} minutes</span>
+                      </div>
+                      <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        {workout.exercises.length} exercises completed
+                      </div>
+                    </div>
+                    <div className="ml-4">
+                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    </div>
                   </div>
                 </div>
               ))

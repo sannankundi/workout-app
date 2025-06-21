@@ -235,7 +235,7 @@ const WorkoutExecution = ({ workoutId }: WorkoutExecutionProps) => {
             {!isActive ? (
               <button
                 onClick={handleStart}
-                className="flex items-center bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors"
+                className="btn-primary"
                 aria-label="Start exercise"
               >
                 <FaPlay className="mr-2" />
@@ -244,7 +244,7 @@ const WorkoutExecution = ({ workoutId }: WorkoutExecutionProps) => {
             ) : (
               <button
                 onClick={handlePause}
-                className="flex items-center bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="btn-secondary"
                 aria-label="Pause exercise"
               >
                 <FaPause className="mr-2" />
@@ -253,7 +253,7 @@ const WorkoutExecution = ({ workoutId }: WorkoutExecutionProps) => {
             )}
             <button
               onClick={handleExerciseComplete}
-              className="flex items-center bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
+              className="btn-success"
               aria-label="Complete exercise"
             >
               <FaCheck className="mr-2" />

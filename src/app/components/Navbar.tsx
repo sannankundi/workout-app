@@ -96,11 +96,8 @@ const Navbar = () => {
               </Link>
             ))}
             {currentUser ? (
-              <button
-                onClick={handleLogout}
-                className="text-gray-600 hover:text-primary transition-colors"
-              >
-                Logout
+              <button onClick={handleLogout} className="btn-primary">
+                Sign Out
               </button>
             ) : (
               <Link
@@ -156,7 +153,7 @@ const Navbar = () => {
                 }}
                 className="block w-full text-left px-3 py-2 text-gray-600 hover:text-primary transition-colors"
               >
-                Logout
+                Sign Out
               </button>
             ) : (
               <Link

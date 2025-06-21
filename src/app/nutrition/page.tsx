@@ -319,7 +319,7 @@ const Nutrition = () => {
                 setSelectedMeal(0);
                 setIsFoodDatabaseOpen(true);
               }}
-              className="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition-colors"
+              className="btn-primary"
             >
               <FaPlus className="mr-2" />
               Log Meal

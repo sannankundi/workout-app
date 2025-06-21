@@ -66,6 +66,9 @@ const FullBodyWorkout = () => {
   const [workoutStreaks, setWorkoutStreaks] = useState<WorkoutLog[]>([]);
   const [currentSet, setCurrentSet] = useState<number>(1);
   const [isExerciseComplete, setIsExerciseComplete] = useState<boolean>(false);
+  const [alreadyCompletedToday, setAlreadyCompletedToday] =
+    useState<boolean>(false);
+  const [showReminder, setShowReminder] = useState<boolean>(false);
 
   // Full Body Workout data
   const workout: Workout = {
@@ -248,7 +251,8 @@ const FullBodyWorkout = () => {
         const logsSnapshot = await getDocs(logsQuery);
         if (!logsSnapshot.empty) {
           // User has already completed this workout today
-          setShowCompletion(true);
+          setAlreadyCompletedToday(true);
+          setShowReminder(true);
         }
       } catch (error) {
         console.error("Error checking today's workout:", error);
@@ -298,52 +302,45 @@ const FullBodyWorkout = () => {
   const handleWorkoutComplete = useCallback(async () => {
     console.log("Handling workout completion");
     try {
-      // Check if workout was already completed today
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
-      const logsQuery = query(
-        collection(db, "workoutLogs"),
-        where("userId", "==", currentUser?.uid),
-        where("workoutName", "==", workout.title),
-        where("completedAt", ">=", today.toISOString()),
-        where("completedAt", "<", tomorrow.toISOString())
-      );
-
-      const logsSnapshot = await getDocs(logsQuery);
-      if (!logsSnapshot.empty) {
-        console.log("Workout already completed today");
-        setShowCompletion(true);
-        return;
-      }
+      if (!currentUser) return;
 
       // Add the last exercise to completed exercises
       const lastExercise = workout.exercises[currentExercise];
       const updatedCompletedExercises = [...completedExercises, lastExercise];
 
-      console.log("Saving workout to Firestore:", {
-        userId: currentUser?.uid,
-        workoutName: workout.title,
-        exercises: updatedCompletedExercises,
-      });
+      // Only save to Firestore if not already completed today
+      if (!alreadyCompletedToday) {
+        console.log("Saving workout to Firestore:", {
+          userId: currentUser.uid,
+          workoutName: workout.title,
+          exercises: updatedCompletedExercises,
+        });
 
-      // Save workout completion to Firestore
-      await addDoc(collection(db, "workoutLogs"), {
-        userId: currentUser?.uid,
-        workoutName: workout.title,
-        completedAt: new Date().toISOString(),
-        duration: workout.duration,
-        exercises: updatedCompletedExercises,
-      });
+        // Save workout completion to Firestore
+        await addDoc(collection(db, "workoutLogs"), {
+          userId: currentUser.uid,
+          workoutName: workout.title,
+          completedAt: new Date().toISOString(),
+          duration: workout.duration,
+          exercises: updatedCompletedExercises,
+        });
 
-      console.log("Workout saved to Firestore successfully");
+        console.log("Workout saved to Firestore successfully");
+      } else {
+        console.log("Workout already completed today, not saving duplicate");
+      }
+
       setShowCompletion(true);
     } catch (error) {
       console.error("Error saving workout completion:", error);
     }
-  }, [currentExercise, currentUser, workout, completedExercises]);
+  }, [
+    currentExercise,
+    currentUser,
+    workout,
+    completedExercises,
+    alreadyCompletedToday,
+  ]);
 
   const handleSkipRest = () => {
     console.log("Skipping rest period");
@@ -390,15 +387,40 @@ const FullBodyWorkout = () => {
           <div className="text-6xl mb-4">🎉</div>
           <h2 className="text-2xl font-bold mb-4">Workout Completed!</h2>
           <p className="text-gray-600 mb-6">
-            Great job! You've completed the Full Body Workout. Keep up the good
-            work!
+            {alreadyCompletedToday
+              ? "Great practice session! This was a repeat workout, so it wasn't recorded as a new completion."
+              : "Great job! You've completed the Full Body Workout. Keep up the good work!"}
           </p>
-          <Link
-            href="/workouts"
-            className="block w-full bg-primary text-white py-3 rounded-lg hover:bg-primary-dark transition-colors"
-          >
+          <Link href="/workouts" className="btn-primary block w-full">
             Return to Workouts
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (showReminder) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+          <div className="text-4xl mb-4">💪</div>
+          <h2 className="text-xl font-bold mb-4">Already Completed Today!</h2>
+          <p className="text-gray-600 mb-6">
+            You've already completed this workout today. You can practice it
+            again, but it won't be recorded as another completion for tracking
+            purposes.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowReminder(false)}
+              className="flex-1 btn-primary"
+            >
+              Continue Practice
+            </button>
+            <Link href="/workouts" className="flex-1 btn-secondary">
+              Go Back
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -478,26 +500,17 @@ const FullBodyWorkout = () => {
 
                 <div className="flex justify-between">
                   {!isActive ? (
-                    <button
-                      onClick={handleStart}
-                      className="flex items-center bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark"
-                    >
+                    <button onClick={handleStart} className="btn-primary">
                       <FaPlay className="mr-2" />
                       Start Exercise
                     </button>
                   ) : (
-                    <button
-                      onClick={handlePause}
-                      className="flex items-center bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200"
-                    >
+                    <button onClick={handlePause} className="btn-primary">
                       <FaPause className="mr-2" />
                       Pause
                     </button>
                   )}
-                  <button
-                    onClick={handleSetComplete}
-                    className="flex items-center bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600"
-                  >
+                  <button onClick={handleSetComplete} className="btn-primary">
                     <FaCheck className="mr-2" />
                     Complete Set
                   </button>
@@ -512,10 +525,7 @@ const FullBodyWorkout = () => {
                 <p className="text-gray-600 mb-4">
                   Get ready for the next set!
                 </p>
-                <button
-                  onClick={handleSkipRest}
-                  className="text-primary hover:text-primary-dark font-medium"
-                >
+                <button onClick={handleSkipRest} className="btn-primary">
                   Skip Rest
                 </button>
               </div>

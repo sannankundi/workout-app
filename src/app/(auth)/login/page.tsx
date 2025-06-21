@@ -121,11 +121,8 @@ const Login = () => {
           </h2>
         </div>
         {error && (
-          <div
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative dark:bg-red-900 dark:border-red-700 dark:text-red-200"
-            role="alert"
-          >
-            <span className="block sm:inline">{error}</span>
+          <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <span className="block sm:inline font-medium">{error}</span>
           </div>
         )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -171,10 +168,10 @@ const Login = () => {
           <div>
             <button
               type="submit"
-              disabled={loading || !recaptchaToken}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
+              className="btn-primary w-full"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </div>
         </form>

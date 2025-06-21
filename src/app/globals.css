@@ -7,6 +7,7 @@
   --foreground: #171717;
   --primary: #ff4b2b;
   --primary-dark: #e63e1d;
+  --primary-light: #ff6b4b;
   --secondary: #1f2937;
   --secondary-dark: #111827;
 }
@@ -15,6 +16,153 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Global hover effects */
+@layer components {
+  /* Base button styles */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ease-in-out;
+  }
+
+  /* Primary button styles */
+  .btn-primary {
+    @apply btn bg-primary text-white !important;
+  }
+
+  .btn-primary:hover {
+    @apply bg-primary shadow-md transform scale-[1.02] !important;
+  }
+
+  .btn-primary:active {
+    @apply transform scale-[0.98] !important;
+  }
+
+  /* Secondary button styles */
+  .btn-secondary {
+    @apply btn bg-gray-100 text-gray-900 !important;
+  }
+
+  .btn-secondary:hover {
+    @apply bg-gray-100 shadow-md transform scale-[1.02] !important;
+  }
+
+  .btn-secondary:active {
+    @apply transform scale-[0.98] !important;
+  }
+
+  /* Success button styles */
+  .btn-success {
+    @apply btn bg-green-500 text-white !important;
+  }
+
+  .btn-success:hover {
+    @apply bg-green-500 shadow-md transform scale-[1.02] !important;
+  }
+
+  .btn-success:active {
+    @apply transform scale-[0.98] !important;
+  }
+
+  /* Danger button styles */
+  .btn-danger {
+    @apply btn bg-red-500 text-white !important;
+  }
+
+  .btn-danger:hover {
+    @apply bg-red-500 shadow-md transform scale-[1.02] !important;
+  }
+
+  .btn-danger:active {
+    @apply transform scale-[0.98] !important;
+  }
+
+  /* Ghost button styles */
+  .btn-ghost {
+    @apply btn bg-transparent text-gray-700 border border-gray-300 !important;
+  }
+
+  .btn-ghost:hover {
+    @apply bg-transparent shadow-sm transform scale-[1.02] !important;
+  }
+
+  .btn-ghost:active {
+    @apply transform scale-[0.98] !important;
+  }
+
+  /* Link button styles */
+  .btn-link {
+    @apply btn bg-transparent text-primary p-0 !important;
+  }
+
+  .btn-link:hover {
+    @apply text-primary-dark !important;
+  }
+
+  /* Dark mode button styles */
+  .dark .btn-primary {
+    @apply bg-primary text-white !important;
+  }
+
+  .dark .btn-primary:hover {
+    @apply bg-primary shadow-md transform scale-[1.02] !important;
+  }
+
+  .dark .btn-secondary {
+    @apply bg-gray-700 text-white !important;
+  }
+
+  .dark .btn-secondary:hover {
+    @apply bg-gray-700 shadow-md transform scale-[1.02] !important;
+  }
+
+  .dark .btn-ghost {
+    @apply bg-transparent text-gray-300 border-gray-600 !important;
+  }
+
+  .dark .btn-ghost:hover {
+    @apply bg-transparent shadow-md transform scale-[1.02] !important;
+  }
+
+  /* Card hover effects */
+  .card-hover {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  .card-hover:hover {
+    @apply transform scale-[1.01] shadow-lg;
+  }
+
+  /* Link hover effects */
+  .link-hover {
+    @apply transition-colors duration-200 ease-in-out;
+  }
+
+  .link-hover:hover {
+    @apply text-primary;
+  }
+
+  /* Interactive element hover effects */
+  .interactive-hover {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  .interactive-hover:hover {
+    @apply bg-opacity-90;
+  }
+
+  /* Dark mode hover effects */
+  .dark .btn-hover:hover {
+    @apply shadow-lg;
+  }
+
+  .dark .card-hover:hover {
+    @apply shadow-xl;
+  }
+
+  .dark .link-hover:hover {
+    color: var(--primary-light);
+  }
 }
 
 /* Import dark mode styles */

@@ -91,11 +91,8 @@ const Features = () => {
             Join thousands of users who have transformed their lives with
             FitTrack
           </p>
-          <Link
-            href="/signup"
-            className="inline-block bg-primary text-white px-8 py-3 rounded-lg hover:bg-opacity-90 transition-colors"
-          >
-            Get Started Now
+          <Link href="/signup" className="btn-primary">
+            Get Started
           </Link>
         </motion.div>
       </div>

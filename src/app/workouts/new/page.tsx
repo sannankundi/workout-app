@@ -594,14 +594,14 @@ export default function NewWorkout() {
                     <button
                       type="button"
                       onClick={() => setShowExerciseList(true)}
-                      className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
+                      className="btn-primary"
                     >
                       Choose Exercise
                     </button>
                     <button
                       type="button"
                       onClick={() => addExercise()}
-                      className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                      className="btn-secondary"
                     >
                       Custom Exercise
                     </button>
@@ -790,14 +790,14 @@ export default function NewWorkout() {
                 <button
                   type="button"
                   onClick={() => router.back()}
-                  className="px-6 py-2 border rounded-lg hover:bg-gray-100 transition-colors"
+                  className="btn-ghost"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+                  className="btn-primary disabled:opacity-50"
                 >
                   {loading ? "Creating..." : "Create Workout"}
                 </button>

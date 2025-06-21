@@ -15,6 +15,7 @@ import {
   getRecaptchaResponse,
   clearRecaptchaWidget,
 } from "../../utils/recaptcha";
+import { initializeUserData } from "../../utils/initializeData";
 
 // Define TypeScript interfaces
 interface User {
@@ -102,12 +103,17 @@ const Signup = () => {
     setLoading(true);
 
     try {
+      // 1. Create the user account
       const { user } = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
+
+      // 2. Update the user's display name
       await updateProfile(user, { displayName: fullName });
+
+      // 3. Create the user document
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         name: fullName,
@@ -128,10 +134,35 @@ const Signup = () => {
         },
         createdAt: new Date().toISOString(),
       } as UserProfile);
+
+      // 4. Initialize user data
+      console.log("Initializing user data...");
+      const success = await initializeUserData(user.uid);
+      if (!success) {
+        console.error("Failed to initialize user data");
+        // Continue anyway as the user is created
+      }
+
       router.push("/dashboard");
     } catch (error: unknown) {
       console.error("Error during signup:", error);
-      setError("Failed to create an account. Please try again.");
+
+      // Handle specific Firebase auth errors
+      if (error instanceof Error) {
+        const errorCode = (error as any).code;
+        if (errorCode === "auth/email-already-in-use") {
+          setError("This email is already registered. Please log in instead.");
+        } else if (errorCode === "auth/weak-password") {
+          setError("Password should be at least 6 characters long.");
+        } else if (errorCode === "auth/invalid-email") {
+          setError("Please enter a valid email address.");
+        } else {
+          setError("Failed to create an account. Please try again.");
+        }
+      } else {
+        setError("Failed to create an account. Please try again.");
+      }
+
       // Reset reCAPTCHA on error
       if (recaptchaRef.current !== null) {
         resetRecaptcha(recaptchaRef.current);
@@ -199,11 +230,18 @@ const Signup = () => {
           </h2>
         </div>
         {error && (
-          <div
-            className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-            role="alert"
-          >
-            <span className="block sm:inline">{error}</span>
+          <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <span className="block sm:inline font-medium">{error}</span>
+            {error.includes("already registered") && (
+              <div className="mt-2">
+                <Link
+                  href="/login"
+                  className="text-blue-700 hover:text-blue-900 underline font-medium"
+                >
+                  Click here to log in
+                </Link>
+              </div>
+            )}
           </div>
         )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -280,10 +318,10 @@ const Signup = () => {
           <div>
             <button
               type="submit"
-              disabled={loading || !recaptchaToken}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
+              className="btn-primary w-full"
             >
-              Sign up
+              {loading ? "Creating account..." : "Create Account"}
             </button>
           </div>
         </form>
