@@ -20,8 +20,18 @@ import {
   deleteUser,
   signOut,
 } from "firebase/auth";
-import { doc, updateDoc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
-import { db } from "../firebase/config";
+import {
+  doc,
+  updateDoc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { db, auth } from "../firebase/config";
 import { useRouter } from "next/navigation";
 import { deleteUserData } from "../utils/initializeData";
 import {
