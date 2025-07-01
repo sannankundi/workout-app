@@ -26,9 +26,11 @@ interface AchievementsProps {
 
 const Achievements = ({ achievements }: AchievementsProps) => {
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+    <div className="bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 rounded-2xl shadow-xl border border-orange-100 dark:border-gray-800 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900">Achievements</h2>
+        <h2 className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-orange-500 via-pink-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg dark:from-yellow-400 dark:via-pink-400 dark:to-orange-400">
+          Achievements
+        </h2>
         <Trophy className="h-6 w-6 text-yellow-500" />
       </div>
       <div className="space-y-4">
@@ -38,22 +40,22 @@ const Achievements = ({ achievements }: AchievementsProps) => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
-            className={`p-4 rounded-lg border transition-all ${
+            className={`relative p-5 rounded-2xl border-2 transition-all overflow-hidden ${
               achievement.unlocked
-                ? "bg-green-50 border-green-200"
+                ? "bg-gradient-to-r from-green-200 via-yellow-100 to-pink-100 border-yellow-400 animate-glow"
                 : "bg-gray-50 border-gray-200"
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div
-                className={`p-2 rounded-full ${
+                className={`p-4 rounded-full text-3xl shadow-lg ${
                   achievement.unlocked
-                    ? "bg-green-100 text-green-600"
+                    ? "bg-gradient-to-br from-yellow-200 via-green-200 to-pink-200 text-yellow-600 animate-bounce"
                     : "bg-gray-100 text-gray-400"
                 }`}
               >
                 {achievement.unlocked ? (
-                  <CheckCircle className="h-5 w-5" />
+                  <span className="inline-block animate-bounce">🎉</span>
                 ) : (
                   achievement.icon
                 )}
@@ -72,10 +74,12 @@ const Achievements = ({ achievements }: AchievementsProps) => {
                       {achievement.progress}/{achievement.maxProgress}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                     <div
-                      className={`h-2 rounded-full transition-all ${
-                        achievement.unlocked ? "bg-green-500" : "bg-blue-500"
+                      className={`h-2 rounded-full transition-all duration-700 ease-out ${
+                        achievement.unlocked
+                          ? "bg-gradient-to-r from-green-400 via-yellow-300 to-pink-400 animate-pulse"
+                          : "bg-blue-500"
                       }`}
                       style={{
                         width: `${
@@ -84,6 +88,11 @@ const Achievements = ({ achievements }: AchievementsProps) => {
                       }}
                     />
                   </div>
+                  {achievement.unlocked && (
+                    <span className="absolute top-2 right-4 text-2xl animate-bounce">
+                      🎊
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

@@ -313,7 +313,9 @@ const Nutrition = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Nutrition</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-orange-500 via-pink-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg dark:from-yellow-400 dark:via-pink-400 dark:to-orange-400">
+              Nutrition
+            </h1>
             <button
               onClick={() => {
                 setSelectedMeal(0);
@@ -327,17 +329,20 @@ const Nutrition = () => {
           </div>
 
           {/* Tabs */}
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
+          <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-t-lg">
+            <nav className="-mb-px flex space-x-2 p-1 rounded-t-lg bg-transparent">
               {["tracking", "goals"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${
-                    activeTab === tab
-                      ? "border-primary text-primary"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm capitalize`}
+                  className={`whitespace-nowrap py-2 px-4 font-medium text-sm capitalize transition-all
+                    rounded-lg
+                    ${
+                      activeTab === tab
+                        ? "bg-primary text-white shadow border-none"
+                        : "bg-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 border-none"
+                    }
+                  `}
                 >
                   {tab}
                 </button>
@@ -359,16 +364,19 @@ const Nutrition = () => {
                   );
                   const isAchieved = value.current >= value.target;
                   return (
-                    <div key={key} className="bg-white rounded-lg shadow p-6">
-                      <h3 className="text-sm font-medium text-gray-600 capitalize">
+                    <div
+                      key={key}
+                      className="bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 rounded-2xl shadow-xl border border-orange-100 dark:border-gray-700 p-6 hover:shadow-orange-300 transition-all duration-300"
+                    >
+                      <h3 className="text-sm font-bold text-gray-700 dark:text-yellow-200 capitalize tracking-wide">
                         {key}
                       </h3>
                       <div className="mt-2">
                         <div className="flex justify-between items-baseline">
-                          <p className="text-2xl font-semibold text-gray-900">
+                          <p className="text-2xl font-extrabold bg-gradient-to-r from-orange-500 via-pink-500 to-yellow-400 bg-clip-text text-transparent dark:from-yellow-400 dark:via-pink-400 dark:to-orange-400">
                             {value.current}
                           </p>
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-gray-500 dark:text-gray-300">
                             / {value.target}
                           </p>
                         </div>
@@ -387,27 +395,39 @@ const Nutrition = () => {
               </div>
 
               {/* Water Intake */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">Water Intake</h2>
+              <div className="bg-gradient-to-br from-blue-50 via-green-50 to-teal-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-gray-700 p-6 hover:shadow-blue-300 transition-all duration-300">
+                <h2 className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-500 via-green-400 to-teal-400 bg-clip-text text-transparent dark:from-blue-300 dark:via-green-300 dark:to-teal-200 mb-4">
+                  Water Intake
+                </h2>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-600">Direct Water Intake</p>
-                      <p className="text-2xl font-bold">{waterIntake}ml</p>
+                      <p className="text-gray-600 dark:text-blue-200">
+                        Direct Water Intake
+                      </p>
+                      <p className="text-2xl font-bold text-blue-500 dark:text-blue-300">
+                        {waterIntake}ml
+                      </p>
                     </div>
                     <div>
-                      <p className="text-gray-600">Water from Food</p>
-                      <p className="text-2xl font-bold">{foodWaterIntake}ml</p>
+                      <p className="text-gray-600 dark:text-green-200">
+                        Water from Food
+                      </p>
+                      <p className="text-2xl font-bold text-green-500 dark:text-green-300">
+                        {foodWaterIntake}ml
+                      </p>
                     </div>
                     <div>
-                      <p className="text-gray-600">Total Water Intake</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-gray-600 dark:text-yellow-200">
+                        Total Water Intake
+                      </p>
+                      <p className="text-2xl font-bold text-green-500 dark:text-green-300">
                         {getTotalWaterIntake()}ml
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600">Goal</p>
-                      <p className="text-2xl font-bold">
+                      <p className="text-gray-600 dark:text-yellow-200">Goal</p>
+                      <p className="text-2xl font-bold text-yellow-500 dark:text-yellow-300">
                         {nutritionGoals.water.target}ml
                       </p>
                     </div>
@@ -449,9 +469,9 @@ const Nutrition = () => {
               </div>
 
               {/* Meals */}
-              <div className="bg-white rounded-lg shadow">
+              <div className="bg-gradient-to-br from-pink-50 via-orange-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 rounded-2xl shadow-xl border border-pink-100 dark:border-gray-700 p-6 hover:shadow-pink-300 transition-all duration-300">
                 <div className="p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  <h2 className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-pink-500 via-orange-400 to-yellow-400 bg-clip-text text-transparent dark:from-pink-300 dark:via-orange-300 dark:to-yellow-200 mb-4">
                     Today&apos;s Meals
                   </h2>
                   <div className="space-y-6">
@@ -463,7 +483,7 @@ const Nutrition = () => {
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center">
                             <FaUtensils className="text-gray-400 mr-3" />
-                            <h3 className="font-medium text-gray-900">
+                            <h3 className="font-bold text-gray-900 dark:text-pink-200">
                               {meal.name}
                             </h3>
                           </div>
@@ -553,9 +573,9 @@ const Nutrition = () => {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-gradient-to-br from-green-50 via-blue-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 rounded-2xl shadow-xl border border-green-100 dark:border-gray-700 p-6 hover:shadow-green-300 transition-all duration-300">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-green-500 via-blue-400 to-yellow-400 bg-clip-text text-transparent dark:from-green-300 dark:via-blue-300 dark:to-yellow-200 mb-4">
                   Nutrition Goals
                 </h2>
                 {!isEditingGoals ? (

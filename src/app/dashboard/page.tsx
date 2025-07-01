@@ -139,6 +139,45 @@ const Dashboard = () => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const router = useRouter();
   const [showMenuId, setShowMenuId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (!currentUser?.uid) return;
+      try {
+        const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setUserName(data.name || "");
+        }
+      } catch (e) {
+        setUserName("");
+      }
+    };
+    fetchUserName();
+  }, [currentUser]);
+
+  // Helper: Get a personalized motivational message
+  function getMotivationalMessage(name: string) {
+    const displayName =
+      name || currentUser?.email?.split("@")?.[0] || "Champion";
+    const messages = [
+      `Let's crush your goals today, ${displayName}!`,
+      `Every rep counts, ${displayName}!`,
+      `You're unstoppable, ${displayName}!`,
+      `Keep moving forward, ${displayName}!`,
+      `Greatness starts with one step, ${displayName}!`,
+      `Your future self will thank you, ${displayName}!`,
+      `Consistency is key, ${displayName}!`,
+      `You're building a stronger you, ${displayName}!`,
+      `Sweat. Smile. Repeat, ${displayName}!`,
+      `You've got this, ${displayName}!`,
+    ];
+    // Pick a random message each render
+    return messages[Math.floor(Math.random() * messages.length)];
+  }
+
+  const motivationalMessage = getMotivationalMessage(userName);
 
   // Generate workout data for chart based on selected time range
   const generateChartData = (workouts: WorkoutSummary[]) => {
@@ -469,7 +508,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 dark:text-gray-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your dashboard...</p>
@@ -480,7 +519,7 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:to-gray-950 dark:text-gray-100 flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
@@ -498,7 +537,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 dark:text-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AnimatePresence>
           <motion.div
@@ -510,11 +549,30 @@ const Dashboard = () => {
             {/* Header */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  Welcome back, {currentUser?.email?.split("@")[0] || "User"}!
+                <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-orange-500 via-pink-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg dark:from-yellow-400 dark:via-pink-400 dark:to-orange-400">
+                  Welcome back,{" "}
+                  {userName || currentUser?.email?.split("@")?.[0] || "User"}!
                   👋
                 </h1>
-                <p className="mt-2 text-gray-600">
+                <div className="mt-4">
+                  <span className="inline-flex items-center text-2xl font-extrabold bg-gradient-to-r from-orange-500 via-pink-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-md animate-pulse dark:from-yellow-400 dark:via-pink-400 dark:to-orange-400">
+                    <svg
+                      className="mr-2 h-7 w-7 text-orange-400 animate-bounce"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      />
+                    </svg>
+                    {motivationalMessage}
+                  </span>
+                </div>
+                <p className="mt-4 text-lg text-gray-700 dark:text-gray-200 font-medium">
                   Here's your fitness journey overview
                 </p>
               </div>
@@ -596,7 +654,9 @@ const Dashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <RecentActivity workouts={recentActivities} />
+                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border-2 border-orange-200 p-6 hover:shadow-orange-300 transition-all duration-300">
+                  <RecentActivity workouts={recentActivities} />
+                </div>
               </motion.div>
 
               {/* Upcoming Workouts */}
@@ -605,7 +665,9 @@ const Dashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
               >
-                <UpcomingWorkouts workouts={upcomingWorkouts} />
+                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border-2 border-pink-200 p-6 hover:shadow-pink-300 transition-all duration-300">
+                  <UpcomingWorkouts workouts={upcomingWorkouts} />
+                </div>
               </motion.div>
             </div>
           </motion.div>

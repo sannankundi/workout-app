@@ -95,7 +95,9 @@ export default function WorkoutPage({ id }: WorkoutPageProps) {
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">{workout.title}</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-orange-500 via-pink-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-lg dark:from-yellow-400 dark:via-pink-400 dark:to-orange-400">
+            {workout.title}
+          </h1>
           <Link
             href="/workouts"
             className="text-primary hover:text-primary-dark"
@@ -104,7 +106,7 @@ export default function WorkoutPage({ id }: WorkoutPageProps) {
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
+        <div className="bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 rounded-2xl shadow-xl border border-orange-100 dark:border-gray-700 p-6 space-y-6">
           <div>
             <h2 className="text-xl font-semibold mb-2">Description</h2>
             <p className="text-gray-600">{workout.description}</p>
