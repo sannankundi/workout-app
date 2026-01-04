@@ -29,7 +29,7 @@ const Footer = () => {
   const socialLinks: SocialLink[] = [
     {
       name: "GitHub",
-      url: "https://github.com/sannaankundi",
+      url: "https://github.com/sannankundi",
       icon: <FaGithub className="h-6 w-6" aria-hidden="true" />,
     },
     {
@@ -103,7 +103,7 @@ const Footer = () => {
           <p>
             © {currentYear} FitTrack. All rights reserved. Created by{" "}
             <a
-              href="https://github.com/sannaankundi"
+              href="https://github.com/sannankundi"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hover:text-opacity-90"
